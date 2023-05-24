@@ -1,7 +1,10 @@
 const inquirer = require("inquirer");
-const generateData = require('../svg-logo/lib/shapes');
+const shapes = require('./lib/shapes')
+const Circle = require('./lib/circle')
+const Square = require('./lib/square')
+const Triangle = require('./lib/triangle')
 const fs = require('fs');
-console.log(inquirer)
+
 
 const questions = [
   {
@@ -37,8 +40,12 @@ const questions = [
 
 function writeToFile(fileName, data){
   fs.writeLogo(fileName, data, (err) => 
-      err ? console.error(err) : console.log('Success!'))
+      err ? console.error(err) : console.log('Generated SVG Logo!'))
 }
+
+
+
+
 
 
 function init(){
@@ -46,7 +53,21 @@ function init(){
   inquirer
    .prompt(questions)
    .then((response) => {
-     const file = generateData(response)
+     function generateData (response){
+      if(response.shape === 'triangle'){
+        const file = Triangle.render()
+        return file
+      } else if(response.shape === 'square') {
+          const file = Square.render()
+          return file
+      } else {
+          const file = Circle.render()
+          return file
+
+      }
+     }
+      generateData(response);
+
       const fileName = "logo.svg"
      writeToFile(fileName, file)
     })
