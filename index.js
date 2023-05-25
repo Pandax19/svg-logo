@@ -1,8 +1,5 @@
 const inquirer = require("inquirer");
-const shapes = require('./lib/shapes')
-const Circle = require('./lib/circle')
-const Square = require('./lib/square')
-const Triangle = require('./lib/triangle')
+const { Triangle, Square, Circle } = require('./lib/shapes');
 const fs = require('fs');
 
 
@@ -19,18 +16,8 @@ const questions = [
     type: 'list',
     message: 'Please select a shape',
     name: 'shape',
-    choices: [
-      {
-        name: 'Circle',
-        value: 'circle'
-      },{
-        name: 'Triangle',
-        value: 'triangle'
-      },{
-        name:'Square',
-        value:'square'
-      }
-    ]
+    choices: ["Triangle", "Square", "Circle"],
+  
   },{
     type:'input',
     message:'Please select a color for your shape',
@@ -39,12 +26,44 @@ const questions = [
 ]
 
 function writeToFile(fileName, data){
-  fs.writeLogo(fileName, data, (err) => 
-      err ? console.error(err) : console.log('Generated SVG Logo!'))
+
+  // fs.writeLogo(fileName, data, (err) => 
+  //     err ? console.error(err) : console.log('Generated SVG Logo!'))
+    let svgString = ''
+    svgString += '<svg version="1.1" width="300" height="200" xmlns="http://www.w3.org/2000/svg">';
+    svgString += '<g>'
+    svgString += `${data.shape}`
+    
+      let shapeChoice; 
+      if(data.shape === 'Triangle'){
+       shapeChoice = new Triangle()
+       svgString += `<polygon points="150, 18 244, 182 56, 182" fill="${data.shapeColor}"/>`;
+
+
+      } else if(data.shape === 'Square') {
+        shapeChoice = new Square()
+        svgString += `<rect x="73" y="40" width="160" height="160" fill="${data.shapeColor}"/>`;
+
+      } else {
+       shapeChoice = new Circle()
+       svgString += `<circle cx="150" cy="115" r="80" fill="${data.shapeColor}"/>`;
+
+
+      }
+
+      svgString += `<text x="150" y="130" text-anchor="middle" font-size="40" fill="${data.letterColor}">${data.letters}</text>`;
+
+
+      svgString += "</g>";
+    svgString += "</svg>";
+    
+  
+  fs.writeFile(fileName, svgString, (err) => {
+    err ? console.log(err) : console.log('generate Logo')
+  })
+
+  
 }
-
-
-
 
 
 
@@ -53,23 +72,13 @@ function init(){
   inquirer
    .prompt(questions)
    .then((response) => {
-     function generateData (response){
-      if(response.shape === 'triangle'){
-        const file = Triangle.render()
-        return file
-      } else if(response.shape === 'square') {
-          const file = Square.render()
-          return file
-      } else {
-          const file = Circle.render()
-          return file
-
-      }
-     }
-      generateData(response);
-
-      const fileName = "logo.svg"
-     writeToFile(fileName, file)
+    if (response.letters.length > 3 ) {
+      console.log('toomanyletters')
+    } else {
+      writeToFile('logo.svg', response)
+      
+    }
+   
     })
 }
 
